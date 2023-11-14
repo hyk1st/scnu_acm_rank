@@ -27,9 +27,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		errStr = append(errStr, "用户已存在")
 	}
 
-	if user.Sex != 0 && user.Sex != 1 {
-		errStr = append(errStr, "性别参数错误")
-	}
+	user.RegisterCheck(&errStr)
 
 	if len(errStr) > 0 {
 		c.JSON(http.StatusOK, utils.H{

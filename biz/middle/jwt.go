@@ -8,14 +8,15 @@ import (
 	"net/http"
 	"scnu_acm_rank/biz/model"
 	"scnu_acm_rank/biz/reqModel"
-
 	"time"
 )
 
-type userStatus struct {
-	name string
-	kind int
-}
+//type userStatus struct {
+//	name   string
+//	vjName string
+//	stuID  string
+//	level  int
+//}
 
 var identityKey = "token"
 
@@ -28,16 +29,14 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*model.User); ok {
 				return jwt.MapClaims{
-					"vjName": v.VjName,
-					"stuID":  v.StuId,
-					"level":  v.Level,
+					identityKey: v,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
-			return claims[identityKey].(userStatus)
+			return claims[identityKey].(model.User)
 		},
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
 			var loginVals reqModel.LoginReq
@@ -56,6 +55,10 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 			return nil, jwt.ErrFailedAuthentication
 		},
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
+			if data == nil {
+				return false
+			}
+			c.Set("user", data.(model.User))
 			return true
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {

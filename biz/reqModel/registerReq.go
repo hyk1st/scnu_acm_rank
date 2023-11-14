@@ -33,3 +33,8 @@ func (r *RegisterReq) ToDbModle() *model.User {
 		Ext:        r.Ext,
 	}
 }
+func (r *RegisterReq) RegisterCheck(s *[]string) {
+	if r.Sex < 0 || r.Sex > 1 {
+		*s = append(*s, "性别参数错误")
+	}
+}
