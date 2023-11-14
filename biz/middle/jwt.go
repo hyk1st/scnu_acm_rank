@@ -46,7 +46,7 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 			userID := loginVals.StuId
 			password := loginVals.Password
 			user := model.User{}
-			DB.Model(&model.User{}).Where("stu_id = ?", userID).Find(&user)
+			model.DB.Model(&model.User{}).Where("stu_id = ?", userID).Find(&user)
 
 			if password == user.Password {
 				return &user, nil

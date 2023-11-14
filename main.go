@@ -4,12 +4,13 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"scnu_acm_rank/biz/middle"
+	"scnu_acm_rank/biz/model"
 )
 
 func main() {
 	h := server.Default()
 	register(h)
-	middle.GetDB()
+	model.GetDB()
+	model.Update <- struct{}{}
 	h.Spin()
 }

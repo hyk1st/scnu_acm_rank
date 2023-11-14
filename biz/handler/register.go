@@ -6,7 +6,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"net/http"
-	"scnu_acm_rank/biz/middle"
 	"scnu_acm_rank/biz/model"
 	"scnu_acm_rank/biz/reqModel"
 )
@@ -22,7 +21,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	// 参数校验
 	var cnt int64
 	errStr := make([]string, 0)
-	middle.DB.Model(&model.User{}).Where("stu_id = ?", user.StuId).Count(&cnt)
+	model.DB.Model(&model.User{}).Where("stu_id = ?", user.StuId).Count(&cnt)
 	if cnt > 0 {
 		errStr = append(errStr, "用户已存在")
 	}
@@ -37,7 +36,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	}
 	// 模型转换
 	userModel := user.ToDbModle()
-	middle.DB.Create(userModel)
+	model.DB.Create(userModel)
 	c.JSON(200, utils.H{
 		"result": "success",
 	})
