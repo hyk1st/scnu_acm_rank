@@ -24,6 +24,7 @@ type Result struct {
 	Name      string    `gorm:"column:name;type:varchar(10);NOT NULL" json:"name"`
 	StuId     int64     `gorm:"column:stu_id;type:bigint(20);NOT NULL" json:"stu_id"`
 	VjName    string    `gorm:"column:vj_name;type:varchar(50);NOT NULL" json:"vj_name"`
+	GroupId   int       `gorm:"column:group_id;type:int(11);NOT NULL" json:"group_id"`
 	CompName  string    `gorm:"column:comp_name;type:varchar(255);NOT NULL" json:"comp_name"`
 	Kind      int       `gorm:"column:kind;type:tinyint(4)" json:"kind"`
 	Goal      int64     `gorm:"column:goal;type:bigint(20);NOT NULL" json:"goal"`
@@ -32,9 +33,21 @@ type Result struct {
 
 func GetUserCompetitions() ([]Result, error) {
 	time := time.Now().Add(-time.Hour * 24 * 180)
-	sql := "SELECT user.name, user.stu_id, user.vj_name, temp.comp_name, temp.goal, temp.start_time " +
+	sql := "SELECT user.name, user.stu_id, user.group_id,user.vj_name, temp.comp_name, temp.goal, temp.start_time " +
 		"FROM user, user_competition temp " +
 		"WHERE user.name = temp.user_name AND temp.start_time > ? AND temp.kind < 2" +
+		"ORDER BY user.name, temp.goal DESC"
+	res := make([]Result, 0)
+	DB.Raw(sql, time).Find(&res)
+	fmt.Println(res)
+	return res, nil
+}
+
+func GetGroupCompetitions() ([]Result, error) {
+	time := time.Now().Add(-time.Hour * 24 * 180)
+	sql := "SELECT user.name, user.stu_id, user.group_id, user.vj_name, temp.comp_name, temp.goal, temp.start_time " +
+		"FROM user, user_competition temp " +
+		"WHERE user.name = temp.user_name AND temp.start_time > ? AND temp.kind >= 2" +
 		"ORDER BY user.name, temp.goal DESC"
 	res := make([]Result, 0)
 	DB.Raw(sql, time).Find(&res)

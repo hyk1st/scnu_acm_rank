@@ -1,6 +1,6 @@
 package remote
 
-type crawlTrainRes interface {
+type CrawlTrainRes interface {
 	Login() string
 	GetTrainRes() string
 	AnalysisRes() string
