@@ -6,6 +6,9 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"log"
 	handler "scnu_acm_rank/biz/handler"
+	root2 "scnu_acm_rank/biz/handler/root"
+	super2 "scnu_acm_rank/biz/handler/super"
+	user2 "scnu_acm_rank/biz/handler/user"
 	"scnu_acm_rank/biz/middle"
 )
 
@@ -29,7 +32,18 @@ func customizedRegister(r *server.Hertz) {
 	competition.GET("/group", handler.CompetitionGroup)
 	competition.GET("/detail", handler.CompetitionDetail)
 	// your code ...
+	r.POST("/login", auth.LoginHandler)
+	r.POST("/register", handler.Register)
 	user := r.Group("/user")
-	user.POST("/login", auth.LoginHandler)
-	user.POST("/register", handler.Register)
+	user.POST("/edit", user2.EditUser)
+	user.GET("/detail", user2.UserDetail)
+	user.POST("/createTeam", user2.CreateTeam)
+	user.POST("/joinTeam", user2.JoinTeam)
+
+	root := r.Group("/root")
+	root.POST("/createCompetition", root2.CreateCompetition)
+	root.POST("/updateConfig", root2.UpdateConfig)
+
+	super := r.Group("/super")
+	super.POST("/addRoot", super2.AddRoot)
 }

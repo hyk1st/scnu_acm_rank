@@ -55,7 +55,7 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 			return nil, jwt.ErrFailedAuthentication
 		},
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
-			if data == nil {
+			if _, ok := data.(model.User); data == nil || !ok {
 				return false
 			}
 			c.Set("user", data.(model.User))
