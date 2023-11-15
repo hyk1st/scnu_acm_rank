@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"runtime"
+	"scnu_acm_rank/biz/config"
 )
 
 type VjCrawler struct {
@@ -15,7 +17,7 @@ type VjCrawler struct {
 	cookie   string
 }
 
-var VJCrawler VjCrawler
+var VJCrawler *VjCrawler
 
 const getRankUrl = "https://vjudge.net/contest/rank/single/"
 const loginUrl = "https://vjudge.net/user/login"
@@ -24,6 +26,7 @@ const checkLoginStatusUrl = "https://vjudge.net/user/checkLogInStatus"
 func init() {
 	//config := model.Config{}
 	//middle.DB.Model(&model.Config{}).First(&config)
+
 	//VJCrawler.userName = config.VjUserName
 	//VJCrawler.passWord = config.VjPassWord
 	//VJCrawler.cookie = config.VjCookie
@@ -33,6 +36,16 @@ func init() {
 	//if cookie, err := VJCrawler.Login(); err != nil {
 	//	VJCrawler.cookie = cookie
 	//}
+	VJCrawler = &VjCrawler{}
+	runtime.KeepAlive(VJCrawler)
+	config.Add(VJCrawler)
+}
+
+func (vj *VjCrawler) Update() {
+	v := config.Conf
+	vj.passWord = v.VjPassWord
+	vj.cookie = v.VjCookie
+	vj.userName = v.VjUserName
 }
 
 func (vj *VjCrawler) checkLoginStatus() (bool, error) {
