@@ -5,11 +5,9 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"runtime"
-	"sync"
 )
 
 var DB *gorm.DB = nil
-var once sync.Once
 
 func GetDB() *gorm.DB {
 

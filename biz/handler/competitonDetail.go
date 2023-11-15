@@ -21,8 +21,24 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 	model.DB.Model(&model.Competiton{}).Where("id = ?", id).First(&comp)
 	if len(comp.Result) < 1 {
 		var crawler remote.CrawlTrainRes
-		crawler.GetTrainRes()
-		crawler.AnalysisRes()
+		res, err := crawler.GetTrainRes()
+		if err != nil {
+			c.JSON(http.StatusOK, utils.H{
+				"message": "fail",
+				"error":   err,
+			})
+			return
+		}
+		analysisRes, err := crawler.AnalysisRes(res)
+		if err != nil {
+			c.JSON(http.StatusOK, utils.H{
+				"message": "fail",
+				"error":   err,
+			})
+			return
+		}
+		comp.Result = analysisRes
+		model.DB.Save(comp)
 	}
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",
