@@ -1,4 +1,4 @@
-package user
+package handler
 
 import (
 	"context"
@@ -25,6 +25,7 @@ func UserDetail(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
+	model.DB.Model(&user).Where("stu_id = ?", user.StuId).Find(&user)
 	user.Password = ""
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",
