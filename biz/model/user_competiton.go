@@ -34,7 +34,7 @@ type Result struct {
 
 func GetUserCompetitions() ([]Result, error) {
 	time := time.Now().Add(-time.Hour * 24 * 180)
-	sql := "SELECT user.name, user.stu_id, user.group_id,user.vj_name, temp.comp_name, temp.goal, temp.start_time " +
+	sql := "SELECT user.name, user.stu_id, temp.comp_name, temp.goal, temp.start_time " +
 		"FROM user, user_competition temp " +
 		"WHERE user.name = temp.user_name AND temp.start_time > ? AND temp.kind < 2" +
 		"ORDER BY user.name, temp.goal DESC"
@@ -45,13 +45,13 @@ func GetUserCompetitions() ([]Result, error) {
 }
 
 func GetGroupCompetitions() ([]Result, error) {
-	time := time.Now().Add(-time.Hour * 24 * 180)
-	sql := "SELECT user.name, user.stu_id, user.group_id, user.vj_name, temp.comp_name, temp.goal, temp.start_time " +
-		"FROM user, user_competition temp " +
-		"WHERE user.name = temp.user_name AND temp.start_time > ? AND temp.kind >= 2" +
-		"ORDER BY user.name, temp.goal DESC"
+	ti := time.Now().Add(-time.Hour * 24 * 180)
+	sql := "SELECT temp.name, temp.stu_id, temp.comp_name, temp.goal, temp.start_time " +
+		"FROM user_competition temp " +
+		"WHERE temp.start_time > ? AND temp.kind >= 2" +
+		"ORDER BY temp.stu_id, temp.goal DESC"
 	res := make([]Result, 0)
-	DB.Raw(sql, time).Find(&res)
+	DB.Raw(sql, ti).Find(&res)
 	fmt.Println(res)
 	return res, nil
 }

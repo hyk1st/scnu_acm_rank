@@ -132,7 +132,7 @@ func (vj *VjCrawler) Login() bool {
 	return true
 }
 
-func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, error) {
+func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
 	//f, err := vj.checkLoginStatus()
 	//if !f || err != nil {
 	//	if !vj.Login() {
@@ -143,26 +143,26 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/550422", nil)
 	if err != nil {
-		return nil, nil
+		return nil, "", nil
 	}
 	req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
 	req.Header.Set("cookie", "JSESSIONID=374E27D475C3033621C9DE5A09DA417A;JSESSlONID=W3YVZQ9OZTWETCYO8AVKWRNNQC0INT7B;Jax.Q=123123213|XDWTIPZVKHY2UBWLIOQ4TQC537M78P;")
 	fmt.Println("doing")
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	bodyText, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	temp := VjRespJson{}
 	fmt.Println(bodyText)
 	err = json.Unmarshal(bodyText, &temp)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return &temp, nil
+	return &temp, string(bodyText), nil
 }
 
 func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {

@@ -1,6 +1,6 @@
 package remote
 
 type CrawlTrainRes interface {
-	GetTrainRes() (string, error)
-	AnalysisRes(interface{}) (string, error)
+	GetTrainRes(id string) (*VjRespJson, string, error)
+	AnalysisRes(interface{}) (*AnalysisRes, error)
 }
