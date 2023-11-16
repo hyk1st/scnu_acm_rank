@@ -2,7 +2,6 @@ package remote
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"io/ioutil"
@@ -10,6 +9,7 @@ import (
 	"net/http"
 	"runtime"
 	"scnu_acm_rank/biz/config"
+	"sort"
 	"strings"
 )
 
@@ -26,7 +26,7 @@ type VjRespJson struct {
 	Length       int                  `json:"length"`
 	IsReplay     bool                 `json:"isReplay"`
 	Participants map[string][3]string `json:"participants"`
-	Submissions  [][3]int             `json:"submissions"`
+	Submissions  [][4]int64           `json:"submissions"`
 }
 
 var VJCrawler *VjCrawler
@@ -132,17 +132,13 @@ func (vj *VjCrawler) Login() bool {
 	return true
 }
 
-func (vj *VjCrawler) AnalysisRes(str string) (string, error) {
-	return "", nil
-}
-
 func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, error) {
-	f, err := vj.checkLoginStatus()
-	if !f || err != nil {
-		if !vj.Login() {
-			return nil, errors.New("login fail")
-		}
-	}
+	//f, err := vj.checkLoginStatus()
+	//if !f || err != nil {
+	//	if !vj.Login() {
+	//		return nil, errors.New("login fail")
+	//	}
+	//}
 	fmt.Println("begin")
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/550422", nil)
@@ -150,7 +146,7 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, error) {
 		return nil, nil
 	}
 	req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
-	req.Header.Set("cookie", "JSESSIONID=374F82ECE154C63A3EC960734AC0B51D;JSESSlONID=MET0CUOVBVCLVJI9OUY2XYEFEMK6UVX2;Jax.Q=123123213|L4LXEXHBOMSWJQFM7I2SB5XJLY1EEW;JSESSIONID=95E933BFC0CF591AAFAB8FA8C82745CC;JSESSlONID=VQ8KPNWD1AEYPHFUHFRHI1VTNZUL475B")
+	req.Header.Set("cookie", "JSESSIONID=374E27D475C3033621C9DE5A09DA417A;JSESSlONID=W3YVZQ9OZTWETCYO8AVKWRNNQC0INT7B;Jax.Q=123123213|XDWTIPZVKHY2UBWLIOQ4TQC537M78P;")
 	fmt.Println("doing")
 	resp, err := client.Do(req)
 	if err != nil {
@@ -161,9 +157,50 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, error) {
 		return nil, err
 	}
 	temp := VjRespJson{}
+	fmt.Println(bodyText)
 	err = json.Unmarshal(bodyText, &temp)
 	if err != nil {
 		return nil, err
 	}
 	return &temp, nil
+}
+
+func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {
+	res := v.(VjRespJson)
+	mp2name := make(map[string]*PersonalRes, len(res.Participants))
+	for k, _ := range res.Participants {
+		mp2name[k] = &PersonalRes{
+			Name:        res.Participants[k][1],
+			Submissions: make(map[int64]*Submission),
+		}
+	}
+	for _, v := range res.Submissions {
+		ts := fmt.Sprintf("%v", v[0])
+		sub := mp2name[ts].Submissions[v[1]]
+		if sub == nil {
+			sub = &Submission{}
+			mp2name[ts].Submissions[v[1]] = sub
+		}
+		if v[2] == 1 {
+			//mp.AcceptTime = v[3]
+			sub.AcceptTime = v[3]
+			mp2name[ts].SolveCnt++
+			mp2name[ts].Penalty += v[3]
+		} else {
+			sub.SubCnt++
+			mp2name[ts].Penalty += 20 * 60
+		}
+	}
+	sli := make([]*PersonalRes, len(mp2name))
+	for k, _ := range mp2name {
+		sli = append(sli, mp2name[k])
+	}
+	sort.Slice(sli, func(a, b int) bool {
+		if sli[a].SolveCnt == sli[b].SolveCnt {
+			return sli[a].Penalty < sli[b].Penalty
+		}
+		return sli[a].SolveCnt > sli[b].SolveCnt
+	})
+	r := &AnalysisRes{Result: sli}
+	return r, nil
 }

@@ -28,6 +28,7 @@ type Result struct {
 	CompName  string    `gorm:"column:comp_name;type:varchar(255);NOT NULL" json:"comp_name"`
 	Kind      int       `gorm:"column:kind;type:tinyint(4)" json:"kind"`
 	Goal      int64     `gorm:"column:goal;type:bigint(20);NOT NULL" json:"goal"`
+	Rank      int       `gorm:"column:rank;type:int(11);NOT NULL" json:"rank"`
 	StartTime time.Time `gorm:"column:start_time;type:datetime;NOT NULL" json:"start_time"`
 }
 
