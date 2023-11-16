@@ -1,19 +1,36 @@
 package remote
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestLogin(t *testing.T) {
 
 	vj := VjCrawler{
 		userName: "3553928717@qq.com",
-		passWord: "",
+		passWord: "wsy16675060764",
 		cookie:   "",
 	}
 
-	_, err := vj.Login()
+	f := vj.Login()
+	if !f {
+		t.Fatal()
+	}
+}
+
+func TestGetResJson(t *testing.T) {
+	vj := VjCrawler{
+		userName: "3553928717@qq.com",
+		passWord: "wsy16675060764",
+		cookie:   "JSESSIONID=374F82ECE154C63A3EC960734AC0B51D;JSESSlONID=MET0CUOVBVCLVJI9OUY2XYEFEMK6UVX2;Jax.Q=123123213|L4LXEXHBOMSWJQFM7I2SB5XJLY1EEW;",
+	}
+	res, err := vj.GetTrainRes("")
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
+	fmt.Println(res)
 }
 
 func TestCheckLoginStatus(t *testing.T) {

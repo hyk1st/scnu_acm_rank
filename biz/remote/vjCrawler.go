@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/json"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -16,6 +17,16 @@ type VjCrawler struct {
 	userName string
 	passWord string
 	cookie   string
+}
+
+type VjRespJson struct {
+	ID           int                  `json:"id"`
+	Title        string               `json:"title"`
+	Begin        int64                `json:"begin"`
+	Length       int                  `json:"length"`
+	IsReplay     bool                 `json:"isReplay"`
+	Participants map[string][3]string `json:"participants"`
+	Submissions  [][3]int             `json:"submissions"`
 }
 
 var VJCrawler *VjCrawler
@@ -71,9 +82,9 @@ func (vj *VjCrawler) checkLoginStatus() (bool, error) {
 	return string(body) == "true", nil
 }
 
-func (vj *VjCrawler) Login() (string, error) {
+func (vj *VjCrawler) Login() bool {
 	if len(vj.cookie) > 0 {
-		return vj.cookie, nil
+		return false
 	}
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
@@ -82,29 +93,29 @@ func (vj *VjCrawler) Login() (string, error) {
 	_ = writer.WriteField("captcha", "")
 	err := writer.Close()
 	if err != nil {
-		return "", err
+		return false
 	}
 
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", loginUrl, payload)
 
 	if err != nil {
-		return "", err
+		return false
 	}
 	req.Header.Add("User-Agent", "Apifox/1.0.0 (https://apifox.com)")
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return false
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return "", err
+		return false
 	}
 	if string(body) != "success" {
-		return "", errors.New("login fail")
+		return false
 	}
 
 	cookies := res.Header.Values("Set-Cookie")
@@ -116,6 +127,43 @@ func (vj *VjCrawler) Login() (string, error) {
 		}
 		fmt.Println(ck[0])
 	}
+	vj.cookie = cookie
 	fmt.Println(cookie)
-	return string(body), nil
+	return true
+}
+
+func (vj *VjCrawler) AnalysisRes(str string) (string, error) {
+	return "", nil
+}
+
+func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, error) {
+	f, err := vj.checkLoginStatus()
+	if !f || err != nil {
+		if !vj.Login() {
+			return nil, errors.New("login fail")
+		}
+	}
+	fmt.Println("begin")
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/550422", nil)
+	if err != nil {
+		return nil, nil
+	}
+	req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
+	req.Header.Set("cookie", "JSESSIONID=374F82ECE154C63A3EC960734AC0B51D;JSESSlONID=MET0CUOVBVCLVJI9OUY2XYEFEMK6UVX2;Jax.Q=123123213|L4LXEXHBOMSWJQFM7I2SB5XJLY1EEW;JSESSIONID=95E933BFC0CF591AAFAB8FA8C82745CC;JSESSlONID=VQ8KPNWD1AEYPHFUHFRHI1VTNZUL475B")
+	fmt.Println("doing")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	bodyText, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	temp := VjRespJson{}
+	err = json.Unmarshal(bodyText, &temp)
+	if err != nil {
+		return nil, err
+	}
+	return &temp, nil
 }
