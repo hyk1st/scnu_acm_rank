@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"runtime"
 	"scnu_acm_rank/biz/config"
+	"strings"
 )
 
 type VjCrawler struct {
@@ -106,10 +107,15 @@ func (vj *VjCrawler) Login() (string, error) {
 		return "", errors.New("login fail")
 	}
 
-	cookie := res.Header.Values("Set-Cookie")
-	for _, s := range cookie {
-		fmt.Println(s)
+	cookies := res.Header.Values("Set-Cookie")
+	cookie := ""
+	for _, s := range cookies {
+		ck := strings.Split(s, ";")
+		if len(ck) > 0 {
+			cookie += ck[0] + ";"
+		}
+		fmt.Println(ck[0])
 	}
-	//fmt.Println(cookie)
+	fmt.Println(cookie)
 	return string(body), nil
 }

@@ -4,11 +4,26 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"net/http"
+	"scnu_acm_rank/biz/config"
+	"scnu_acm_rank/biz/model"
+	"scnu_acm_rank/biz/reqModel"
 )
 
 func UpdateConfig(ctx context.Context, c *app.RequestContext) {
-	c.JSON(consts.StatusOK, utils.H{
-		"message": "pong",
+	conf := reqModel.UpdateConfigReq{}
+	err := c.BindForm(&conf)
+	if err != nil {
+		c.JSON(http.StatusOK, utils.H{
+			"message": "fail",
+			"error":   err,
+		})
+		return
+	}
+	m := conf.Convert2DbModel()
+	model.DB.Model(m).Save(m)
+	config.Update <- struct{}{}
+	c.JSON(http.StatusOK, utils.H{
+		"message": "success",
 	})
 }

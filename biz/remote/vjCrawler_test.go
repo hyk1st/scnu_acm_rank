@@ -6,7 +6,7 @@ func TestLogin(t *testing.T) {
 
 	vj := VjCrawler{
 		userName: "3553928717@qq.com",
-		passWord: "wsy16675060764",
+		passWord: "",
 		cookie:   "",
 	}
 
