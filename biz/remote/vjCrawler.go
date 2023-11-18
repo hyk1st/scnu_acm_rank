@@ -2,6 +2,7 @@ package remote
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"io/ioutil"
@@ -83,9 +84,6 @@ func (vj *VjCrawler) checkLoginStatus() (bool, error) {
 }
 
 func (vj *VjCrawler) Login() bool {
-	if len(vj.cookie) > 0 {
-		return false
-	}
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 	_ = writer.WriteField("username", "3553928717@qq.com")
@@ -133,20 +131,20 @@ func (vj *VjCrawler) Login() bool {
 }
 
 func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
-	//f, err := vj.checkLoginStatus()
-	//if !f || err != nil {
-	//	if !vj.Login() {
-	//		return nil, errors.New("login fail")
-	//	}
-	//}
+	f, err := vj.checkLoginStatus()
+	if !f || err != nil {
+		if !vj.Login() {
+			return nil, "", errors.New("login fail")
+		}
+	}
 	fmt.Println("begin")
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/550422", nil)
+	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/"+contest, nil)
 	if err != nil {
 		return nil, "", nil
 	}
 	req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
-	req.Header.Set("cookie", "JSESSIONID=374E27D475C3033621C9DE5A09DA417A;JSESSlONID=W3YVZQ9OZTWETCYO8AVKWRNNQC0INT7B;Jax.Q=123123213|XDWTIPZVKHY2UBWLIOQ4TQC537M78P;")
+	req.Header.Set("cookie", vj.cookie)
 	fmt.Println("doing")
 	resp, err := client.Do(req)
 	if err != nil {

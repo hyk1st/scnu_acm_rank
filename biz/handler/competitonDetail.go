@@ -13,10 +13,11 @@ import (
 
 func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 	if _, ok := c.Get("id"); !ok {
-		c.JSON(http.StatusOK, utils.H{
-			"message": "fail",
-			"error":   "参数错误",
-		})
+		c.JSON(
+			http.StatusOK, utils.H{
+				"message": "fail",
+				"error":   "参数错误",
+			})
 	}
 	id, _ := c.Get("id")
 	comp := model.Competiton{}
