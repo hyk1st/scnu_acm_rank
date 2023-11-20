@@ -6,6 +6,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"net/http"
+	"scnu_acm_rank/biz/middle"
 	"scnu_acm_rank/biz/model"
 	"scnu_acm_rank/biz/reqModel"
 )
@@ -16,6 +17,13 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusOK, err)
+		return
+	}
+	if middle.GetCode(user.Email) != user.Code {
+		c.JSON(http.StatusOK, utils.H{
+			"message": "fail",
+			"error":   "code error",
+		})
 		return
 	}
 	// 参数校验

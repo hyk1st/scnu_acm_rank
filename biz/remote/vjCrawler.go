@@ -137,7 +137,6 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
 			return nil, "", errors.New("login fail")
 		}
 	}
-	fmt.Println("begin")
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/"+contest, nil)
 	if err != nil {
@@ -145,7 +144,6 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
 	}
 	req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
 	req.Header.Set("cookie", vj.cookie)
-	fmt.Println("doing")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, "", err
@@ -155,7 +153,6 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
 		return nil, "", err
 	}
 	temp := VjRespJson{}
-	fmt.Println(bodyText)
 	err = json.Unmarshal(bodyText, &temp)
 	if err != nil {
 		return nil, "", err

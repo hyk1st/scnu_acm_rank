@@ -31,9 +31,11 @@ func customizedRegister(r *server.Hertz) {
 	competition.GET("/person", handler.CompetitionPerson)
 	competition.GET("/group", handler.CompetitionGroup)
 	competition.GET("/detail", handler.CompetitionDetail)
+
 	// your code ...
 	r.POST("/login", auth.LoginHandler)
 	r.POST("/register", handler.Register)
+	r.POST("sendEmail", handler.SendEmail)
 	user := r.Group("/user")
 	user.POST("/edit", user2.EditUser)
 	user.GET("/detail", handler.UserDetail)

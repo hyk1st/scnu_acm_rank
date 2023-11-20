@@ -14,6 +14,7 @@ type RegisterReq struct {
 	Sex        int    `form:"sex,required"`
 	GroupId    int    `form:"group_id,required"`
 	Grade      string `form:"grade,required"`
+	Code       string `form:"code,required"`
 	Status     int    `form:"status"`
 	Connection string `form:"connection"`
 	Ext        string `form:"ext"`

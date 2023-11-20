@@ -14,3 +14,11 @@ func init() {
 func AddCode(user, code string) {
 	_ = Cache.Set([]byte(user), []byte(code), 60)
 }
+
+func GetCode(email string) string {
+	val, err := Cache.Get([]byte(email))
+	if err != nil {
+		return ""
+	}
+	return string(val)
+}
