@@ -2,8 +2,8 @@ package middle
 
 import (
 	"crypto/tls"
+	"fmt"
 	"github.com/jordan-wright/email"
-	"math/rand"
 	"net/smtp"
 	"scnu_acm_rank/biz/config"
 	"time"
@@ -34,19 +34,17 @@ func SendEmail(to []string) error {
 	e := email.NewEmail()
 	e.From = E.from
 	e.To = to
-	code := string(rand.NewSource(time.Now().UnixMilli()).Int63())
-	if len(code) < 6 {
-		for i := 0; i < 6-len(code); i++ {
-			code = "0" + code
-		}
+	code := ""
+	for i := 0; i < 6; i++ {
+		code += fmt.Sprintf("%v", time.Now().UnixNano()%10)
 	}
 	e.Subject = E.subject
 	e.Text = []byte("欢迎注册hyk online judge，您的验证码是： ")
-	e.HTML = []byte("<h1>" + code[:6] + "</h1>")
+	e.HTML = []byte("<h1>" + code + "</h1>")
 	err := e.SendWithTLS("smtp.qq.com:465", smtp.PlainAuth("", E.from, E.password, "smtp.qq.com"), &tls.Config{InsecureSkipVerify: true, ServerName: "smtp.qq.com"})
 	if err != nil {
 		return err
 	}
-	AddCode(to[0], code[:6])
+	AddCode(to[0], code)
 	return nil
 }

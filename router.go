@@ -37,6 +37,7 @@ func customizedRegister(r *server.Hertz) {
 	r.POST("/register", handler.Register)
 	r.POST("sendEmail", handler.SendEmail)
 	user := r.Group("/user")
+	user.Use(auth.MiddlewareFunc())
 	user.POST("/edit", user2.EditUser)
 	user.GET("/detail", handler.UserDetail)
 	user.POST("/createTeam", user2.CreateTeam)

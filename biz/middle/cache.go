@@ -12,7 +12,7 @@ func init() {
 }
 
 func AddCode(user, code string) {
-	_ = Cache.Set([]byte(user), []byte(code), 60)
+	_ = Cache.Set([]byte(user), []byte(code), 60*3)
 }
 
 func GetCode(email string) string {

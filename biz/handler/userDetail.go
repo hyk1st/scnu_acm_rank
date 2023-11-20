@@ -17,7 +17,7 @@ func UserDetail(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	user, ok := userInter.(model.User)
+	user, ok := userInter.(*model.User)
 	if !ok {
 		c.JSON(http.StatusOK, utils.H{
 			"message": "fail",
@@ -27,7 +27,7 @@ func UserDetail(ctx context.Context, c *app.RequestContext) {
 	}
 	model.DB.Model(&user).Where("stu_id = ?", user.StuId).Find(&user)
 	comp := make([]model.UserCompetition, 0)
-	model.DB.Model(&model.UserCompetition{}).Where("stu_id = ?", user.StuId).Find(&comp)
+	model.DB.Model(&model.UserCompetition{}).Where("vj_name = ?", user.VjName).Find(&comp)
 	user.Password = ""
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",

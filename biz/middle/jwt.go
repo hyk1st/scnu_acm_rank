@@ -36,7 +36,7 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 		},
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
-			return claims[identityKey].(model.User)
+			return claims[identityKey]
 		},
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
 			var loginVals reqModel.LoginReq
@@ -55,10 +55,13 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 			return nil, jwt.ErrFailedAuthentication
 		},
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
-			if _, ok := data.(model.User); data == nil || !ok {
-				return false
-			}
-			c.Set("user", data.(model.User))
+			mp := data.(map[string]interface{})
+			c.Set("user", &model.User{
+				Email:  mp["email"].(string),
+				VjName: mp["vj_name"].(string),
+				StuId:  int64(mp["stu_id"].(float64)),
+				Name:   mp["name"].(string),
+			})
 			return true
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {

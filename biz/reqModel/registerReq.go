@@ -22,6 +22,7 @@ type RegisterReq struct {
 
 func (r *RegisterReq) ToDbModle() *model.User {
 	return &model.User{
+		Email:      r.Email,
 		Password:   r.Password,
 		VjName:     r.VjName,
 		CfId:       r.CfId,
