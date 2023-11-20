@@ -141,7 +141,7 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/"+contest, nil)
 	if err != nil {
-		return nil, "", nil
+		return nil, "", err
 	}
 	req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
 	req.Header.Set("cookie", vj.cookie)
@@ -164,11 +164,11 @@ func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
 }
 
 func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {
-	res := v.(VjRespJson)
+	res := v.(*VjRespJson)
 	mp2name := make(map[string]*PersonalRes, len(res.Participants))
 	for k, _ := range res.Participants {
 		mp2name[k] = &PersonalRes{
-			Name:        res.Participants[k][1],
+			Name:        res.Participants[k][0],
 			Submissions: make(map[int64]*Submission),
 		}
 	}
@@ -189,7 +189,7 @@ func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {
 			mp2name[ts].Penalty += 20 * 60
 		}
 	}
-	sli := make([]*PersonalRes, len(mp2name))
+	sli := make([]*PersonalRes, 0, len(mp2name))
 	for k, _ := range mp2name {
 		sli = append(sli, mp2name[k])
 	}
@@ -199,6 +199,9 @@ func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {
 		}
 		return sli[a].SolveCnt > sli[b].SolveCnt
 	})
+	for i, _ := range sli {
+		sli[i].Rank = int64(i + 1)
+	}
 	r := &AnalysisRes{Result: sli}
 	return r, nil
 }

@@ -18,8 +18,8 @@ func TeamDetail(ctx context.Context, c *app.RequestContext) {
 	}
 	team := &model.Team{}
 	model.DB.Model(team).Where("group_id = ?", tid).Find(&team)
-	comp := make([]model.UserCompetiton, 0)
-	model.DB.Model(&model.UserCompetiton{}).Where("stu_id = ?", team.Id).Find(&comp)
+	comp := make([]model.UserCompetition, 0)
+	model.DB.Model(&model.UserCompetition{}).Where("stu_id = ?", team.Id).Find(&comp)
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",
 		"data": utils.H{

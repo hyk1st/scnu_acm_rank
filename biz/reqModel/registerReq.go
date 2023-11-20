@@ -5,7 +5,7 @@ import (
 )
 
 type RegisterReq struct {
-	Email      string `form:"email,required" vd:"email($)"`
+	Email      string `form:"email" vd:"email($)"`
 	Password   string `form:"password,required"`
 	VjName     string `form:"vj_name,required"`
 	CfId       string `form:"cf_id,required"`

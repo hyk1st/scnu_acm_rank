@@ -27,7 +27,7 @@ func CompetitionGroup(ctx context.Context, c *app.RequestContext) {
 		if len(mp[row.StuId]) > 10 {
 			continue
 		}
-		cnt[row.StuId] += row.Goal
+		cnt[row.StuId]++
 		temp := row
 		mp[row.StuId] = append(mp[row.StuId], temp)
 	}
@@ -41,7 +41,6 @@ func CompetitionGroup(ctx context.Context, c *app.RequestContext) {
 
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",
-		"user":    c.Get("user"),
 		"data": map[string]interface{}{
 			"rank":     slice,
 			"scoreSum": cnt,

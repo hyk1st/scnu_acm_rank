@@ -26,8 +26,8 @@ func UserDetail(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	model.DB.Model(&user).Where("stu_id = ?", user.StuId).Find(&user)
-	comp := make([]model.UserCompetiton, 0)
-	model.DB.Model(&model.UserCompetiton{}).Where("stu_id = ?", user.StuId).Find(&comp)
+	comp := make([]model.UserCompetition, 0)
+	model.DB.Model(&model.UserCompetition{}).Where("stu_id = ?", user.StuId).Find(&comp)
 	user.Password = ""
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",

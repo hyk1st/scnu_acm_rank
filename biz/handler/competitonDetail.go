@@ -9,22 +9,22 @@ import (
 	"net/http"
 	"scnu_acm_rank/biz/model"
 	"scnu_acm_rank/biz/remote"
+	"scnu_acm_rank/biz/reqModel"
+	"scnu_acm_rank/biz/respModel"
 )
 
 func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
-	if _, ok := c.Get("id"); !ok {
-		c.JSON(
-			http.StatusOK, utils.H{
-				"message": "fail",
-				"error":   "参数错误",
-			})
+	req := reqModel.ContestDetailReq{}
+	err := c.BindForm(&req)
+	if err != nil {
+		return
 	}
-	id, _ := c.Get("id")
 	comp := model.Competiton{}
-	model.DB.Model(&model.Competiton{}).Where("id = ?", id).First(&comp)
-	if len(comp.Result) < 1 {
+	analysisRes := &remote.AnalysisRes{}
+	model.DB.Model(&model.Competiton{}).Where("id = ?", req.ContestId).First(&comp)
+	if true {
 		var crawler remote.CrawlTrainRes = remote.VJCrawler
-		res, str, err := crawler.GetTrainRes(id.(string))
+		res, str, err := crawler.GetTrainRes(comp.VjCpId)
 		if err != nil {
 			c.JSON(http.StatusOK, utils.H{
 				"message": "fail",
@@ -32,7 +32,7 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 			})
 			return
 		}
-		analysisRes, err := crawler.AnalysisRes(res)
+		analysisRes, err = crawler.AnalysisRes(res)
 		if err != nil {
 			c.JSON(http.StatusOK, utils.H{
 				"message": "fail",
@@ -57,15 +57,12 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 		err = model.DB.Transaction(func(tx *gorm.DB) error {
 			tx.Save(comp)
 			for _, v := range analysisRes.Result {
-				user := model.User{}
-				tx.Where("vj_name = ?", v.Name).Find(&user)
 				js, _ := json2.Marshal(v)
-				ins := model.UserCompetiton{
-					UserId:    user.Id,
-					UserName:  user.Name,
+				ins := model.UserCompetition{
+					VjName:    v.Name,
 					CompName:  comp.Name,
 					CompId:    comp.Id,
-					Goal:      v.Rank,
+					Rank:      uint(v.Rank),
 					StartTime: comp.StartDate,
 					Ext:       string(js),
 				}
@@ -81,8 +78,18 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 	}
+	resp := respModel.ContestDetailResp{
+		Name:      comp.Name,
+		VjCpId:    comp.VjCpId,
+		Kind:      comp.Kind,
+		Password:  comp.Password,
+		StartDate: comp.StartDate,
+		Length:    comp.Length,
+		CreateUsr: comp.CreateUsr,
+		Result:    *analysisRes,
+	}
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",
-		"data":    comp,
+		"data":    resp,
 	})
 }
