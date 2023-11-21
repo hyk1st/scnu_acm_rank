@@ -16,8 +16,8 @@ type CreateContestReq struct {
 	Ext       string `form:"ext" json:"ext"`
 }
 
-func (req *CreateContestReq) Convert2model() *model.Competiton {
-	resp := model.Competiton{}
+func (req *CreateContestReq) Convert2model() *model.Competition {
+	resp := model.Competition{}
 	resp.Ext = req.Ext
 	resp.Name = req.Name
 	resp.StartDate = req.StartDate
