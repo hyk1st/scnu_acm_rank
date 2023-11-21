@@ -30,22 +30,22 @@ func customizedRegister(r *server.Hertz) {
 	competition := r.Group("/competition")
 	competition.GET("/person", handler.CompetitionPerson)
 	competition.GET("/group", handler.CompetitionGroup)
-	competition.GET("/detail", handler.CompetitionDetail)
+	competition.GET("/detail", handler.CompetitionDetail) // 1
 
 	// your code ...
-	r.POST("/login", auth.LoginHandler)
-	r.POST("/register", handler.Register)
-	r.POST("sendEmail", handler.SendEmail)
+	r.POST("/login", auth.LoginHandler)    //1
+	r.POST("/register", handler.Register)  //1
+	r.POST("sendEmail", handler.SendEmail) // 1
 	user := r.Group("/user")
 	user.Use(auth.MiddlewareFunc())
-	user.POST("/edit", user2.EditUser)
-	user.GET("/detail", handler.UserDetail)
-	user.POST("/createTeam", user2.CreateTeam)
-	user.POST("/joinTeam", user2.JoinTeam)
+	user.POST("/edit", user2.EditUser)         // 1
+	user.GET("/detail", handler.UserDetail)    // 1
+	user.POST("/createTeam", user2.CreateTeam) // 1
+	user.POST("/joinTeam", user2.JoinTeam)     // 1
 
 	root := r.Group("/root")
-	root.POST("/createCompetition", root2.CreateCompetition)
-	root.POST("/updateConfig", root2.UpdateConfig)
+	root.POST("/createCompetition", root2.CreateCompetition) // 1
+	root.POST("/updateConfig", root2.UpdateConfig)           // 1
 
 	super := r.Group("/super")
 	super.POST("/addRoot", super2.AddRoot)

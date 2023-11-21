@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
+	"gorm.io/gorm"
 	"net/http"
 	"runtime"
 	"scnu_acm_rank/biz/model"
@@ -38,15 +39,23 @@ func CreateTeam(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	user := v.(model.User)
+	user := v.(*model.User)
 	team := req.GetModel()
-	team.Leader = user.Id
-	team.Key = fmt.Sprintf("%v", time.Now().Unix())
+	team.Leader = user.StuId
+	team.Key = fmt.Sprintf("%v", time.Now().UnixNano())
 	team.Status = 1
-	mutex.Lock()
-	model.DB.Save(&team)
-	model.DB.Where("stu_id = ?", user.StuId).Update("group_id", team.Id)
-	mutex.Unlock()
+	err = model.DB.Transaction(func(tx *gorm.DB) error {
+		tx.Save(&team).Find(&team)
+		tx.Model(&user).Where("stu_id = ?", user.StuId).Update("group_id", team.Id)
+		return nil
+	})
+	if err != nil {
+		c.JSON(http.StatusOK, utils.H{
+			"message": "fail",
+			"error":   err,
+		})
+		return
+	}
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",
 		"data":    team,

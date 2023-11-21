@@ -59,12 +59,12 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 			for _, v := range analysisRes.Result {
 				js, _ := json2.Marshal(v)
 				ins := model.UserCompetition{
-					VjName:    v.Name,
-					CompName:  comp.Name,
-					CompId:    comp.Id,
-					Rank:      uint(v.Rank),
-					StartTime: comp.StartDate,
-					Ext:       string(js),
+					VjName:  v.Name,
+					CompId:  comp.Id,
+					Rank:    uint(v.Rank),
+					Penalty: v.Penalty,
+					Solve:   v.SolveCnt,
+					Ext:     string(js),
 				}
 				tx.Create(&ins)
 			}

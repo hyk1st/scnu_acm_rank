@@ -6,15 +6,13 @@ import (
 )
 
 type UserCompetition struct {
-	Id        int    `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
-	VjName    string `gorm:"column:vj_name;type:varchar(50);NOT NULL" json:"vj_name"`
-	CompName  string `gorm:"column:comp_name;type:varchar(255);NOT NULL" json:"comp_name"`
-	CompId    int    `gorm:"column:comp_id;type:int(11);NOT NULL" json:"comp_id"`
-	Rank      uint   `gorm:"column:rank;type:tinyint(4) unsigned;NOT NULL" json:"rank"`
-	Goal      int64  `gorm:"column:goal;type:bigint(20);NOT NULL" json:"goal"`
-	Kind      int    `gorm:"column:kind;type:tinyint(4)" json:"kind"`
-	StartTime int64  `gorm:"column:start_time;type:bigint(20);NOT NULL" json:"start_time"`
-	Ext       string `gorm:"column:ext;type:text" json:"ext"`
+	Id      int    `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
+	VjName  string `gorm:"column:vj_name;type:varchar(50);NOT NULL" json:"vj_name"`
+	CompId  int    `gorm:"column:comp_id;type:int(11);NOT NULL" json:"comp_id"`
+	Solve   int    `gorm:"column:solve;type:int(11);NOT NULL" json:"solve"`
+	Rank    uint   `gorm:"column:rank;type:tinyint(4) unsigned;NOT NULL" json:"rank"`
+	Ext     string `gorm:"column:ext;type:text" json:"ext"`
+	Penalty int    `gorm:"column:penalty;type:int(11);NOT NULL" json:"penalty"`
 }
 
 func (m *UserCompetition) TableName() string {
@@ -22,22 +20,23 @@ func (m *UserCompetition) TableName() string {
 }
 
 type Result struct {
-	Name      string    `gorm:"column:name;type:varchar(10);NOT NULL" json:"name"`
-	StuId     int64     `gorm:"column:stu_id;type:bigint(20);NOT NULL" json:"stu_id"`
-	VjName    string    `gorm:"column:vj_name;type:varchar(50);NOT NULL" json:"vj_name"`
-	GroupId   int       `gorm:"column:group_id;type:int(11);NOT NULL" json:"group_id"`
-	CompName  string    `gorm:"column:comp_name;type:varchar(255);NOT NULL" json:"comp_name"`
-	Kind      int       `gorm:"column:kind;type:tinyint(4)" json:"kind"`
-	Rank      int       `gorm:"column:rank;type:int(11);NOT NULL" json:"rank"`
-	StartTime time.Time `gorm:"column:start_time;type:datetime;NOT NULL" json:"start_time"`
+	Name      string `gorm:"column:name;type:varchar(10);NOT NULL" json:"name"`
+	StuId     int64  `gorm:"column:stu_id;type:bigint(20);NOT NULL" json:"stu_id"`
+	VjName    string `gorm:"column:vj_name;type:varchar(50);NOT NULL" json:"vj_name"`
+	CompId    int    `gorm:"column:comp_id;type:int(11);NOT NULL" json:"comp_id"`
+	CompName  string `gorm:"column:comp_name;type:varchar(255);NOT NULL" json:"comp_name"`
+	Penalty   int    `gorm:"column:penalty;type:int(11)" json:"penalty"`
+	Rank      int    `gorm:"column:rank;type:int(11);NOT NULL" json:"rank"`
+	Solve     int    `gorm:"column:solve;type:int(11);NOT NULL" json:"solve"`
+	StartDate int64  `gorm:"column:start_date;type:bigint(20);NOT NULL" json:"start_date"`
 }
 
 func GetUserCompetitions() ([]Result, error) {
-	time := time.Now().Add(-time.Hour * 24 * 180)
-	sql := "SELECT user.name, user.stu_id, temp.comp_name, temp.goal, temp.start_time " +
-		"FROM user, user_competition temp " +
-		"WHERE user.vj_name = temp.vj_name AND temp.start_time > ? AND temp.kind < 2" +
-		"ORDER BY user.name, temp.goal DESC"
+	time := time.Now().Add(-time.Hour * 24 * 180).Unix()
+	sql := `SELECT user.name, user.stu_id, user.vj_name, a.group_id, b.name comp_name, a.rank, b.start_date 
+			FROM user, user_competition a, competiton b
+			WHERE user.vj_name = a.vj_name AND a.comp_id = b.id AND b.start_date > 0 AND b.kind < 2 
+			ORDER BY user.name, a.rank DESC`
 	res := make([]Result, 0)
 	DB.Raw(sql, time).Find(&res)
 	fmt.Println(res)

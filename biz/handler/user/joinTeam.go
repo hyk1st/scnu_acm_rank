@@ -18,7 +18,7 @@ func JoinTeam(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	user, ok := userInter.(model.User)
+	user, ok := userInter.(*model.User)
 	if !ok {
 		c.JSON(http.StatusOK, utils.H{
 			"message": "fail",
@@ -35,8 +35,8 @@ func JoinTeam(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	team := model.Team{Id: 0}
-	model.DB.Model(&team).Where("key = ?", req.Key).Find(&team)
+	team := model.Team{}
+	model.DB.Model(&team).Where("team.key = ?", req.Key).First(&team)
 	if team.Id == 0 {
 		c.JSON(http.StatusOK, utils.H{
 			"message": "fail",
@@ -46,7 +46,7 @@ func JoinTeam(ctx context.Context, c *app.RequestContext) {
 	}
 	var cnt int64
 	// 检验队伍人数
-	model.DB.Model(&user).Find("where group_id = ?", team.Id).Count(&cnt)
+	model.DB.Model(&user).Where("group_id = ?", team.Id).Count(&cnt)
 	if cnt >= 3 {
 		c.JSON(http.StatusOK, utils.H{
 			"message": "fail",
@@ -55,7 +55,7 @@ func JoinTeam(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	mutex.Lock()
-	model.DB.Model(&user).Update("group_id", team.Id)
+	model.DB.Model(&user).Where("stu_id = ?", user.StuId).Update("group_id", team.Id)
 	mutex.Unlock()
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",

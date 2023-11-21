@@ -21,7 +21,7 @@ func UpdateConfig(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	m := conf.Convert2DbModel()
-	model.DB.Model(m).Save(m)
+	model.DB.Model(m).Where("1 = ?", 1).Updates(m)
 	config.Update <- struct{}{}
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",

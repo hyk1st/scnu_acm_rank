@@ -18,7 +18,7 @@ func EditUser(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	user, ok := userInter.(model.User)
+	user, ok := userInter.(*model.User)
 	if !ok {
 		c.JSON(http.StatusOK, utils.H{
 			"message": "fail",
@@ -36,11 +36,9 @@ func EditUser(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	usr := model.User{}
-	model.DB.Model(&model.User{}).Where("stu_id = ?", v.StuId).Find(&usr)
 	v.Change2UserModel(&usr)
-	model.DB.Save(&usr)
+	model.DB.Where("user_id = ?", user.StuId).Save(&usr)
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",
-		"data":    user,
 	})
 }

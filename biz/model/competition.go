@@ -1,6 +1,6 @@
 package model
 
-type Competiton struct {
+type Competition struct {
 	Id        int    `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
 	Name      string `gorm:"column:name;type:varchar(120);NOT NULL" json:"name"`
 	VjCpId    string `gorm:"column:vj_cp_id;type:varchar(120);NOT NULL" json:"vj_cp_id"`
@@ -13,6 +13,6 @@ type Competiton struct {
 	Ext       string `gorm:"column:ext;type:text" json:"ext"`
 }
 
-func (m *Competiton) TableName() string {
-	return "competiton"
+func (m *Competition) TableName() string {
+	return "competition"
 }

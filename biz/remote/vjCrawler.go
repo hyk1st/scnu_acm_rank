@@ -86,8 +86,8 @@ func (vj *VjCrawler) checkLoginStatus() (bool, error) {
 func (vj *VjCrawler) Login() bool {
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
-	_ = writer.WriteField("username", "3553928717@qq.com")
-	_ = writer.WriteField("password", "wsy16675060764")
+	_ = writer.WriteField("username", vj.userName)
+	_ = writer.WriteField("password", vj.passWord)
 	_ = writer.WriteField("captcha", "")
 	err := writer.Close()
 	if err != nil {
@@ -180,7 +180,7 @@ func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {
 			//mp.AcceptTime = v[3]
 			sub.AcceptTime = v[3]
 			mp2name[ts].SolveCnt++
-			mp2name[ts].Penalty += v[3]
+			mp2name[ts].Penalty += int(v[3])
 		} else {
 			sub.SubCnt++
 			mp2name[ts].Penalty += 20 * 60
