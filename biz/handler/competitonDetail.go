@@ -19,9 +19,9 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		return
 	}
-	comp := model.Competiton{}
+	comp := model.Competition{}
 	analysisRes := &remote.AnalysisRes{}
-	model.DB.Model(&model.Competiton{}).Where("id = ?", req.ContestId).First(&comp)
+	model.DB.Model(&model.Competition{}).Where("id = ?", req.ContestId).First(&comp)
 	if true {
 		var crawler remote.CrawlTrainRes = remote.VJCrawler
 		res, str, err := crawler.GetTrainRes(comp.VjCpId)

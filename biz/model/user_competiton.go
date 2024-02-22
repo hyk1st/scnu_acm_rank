@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -32,14 +31,13 @@ type Result struct {
 }
 
 func GetUserCompetitions() ([]Result, error) {
-	time := time.Now().Add(-time.Hour * 24 * 180).Unix()
-	sql := `SELECT user.name, user.stu_id, user.vj_name, a.group_id, b.name comp_name, a.rank, b.start_date 
-			FROM user, user_competition a, competiton b
-			WHERE user.vj_name = a.vj_name AND a.comp_id = b.id AND b.start_date > 0 AND b.kind < 2 
+	time := time.Now().Add(-time.Hour * 24 * 700).UnixMilli()
+	sql := `SELECT user.name, user.stu_id, user.vj_name, a.comp_id, b.name comp_name, a.rank, a.penalty, a.solve, b.start_date 
+			FROM user, user_competition a, competition b
+			WHERE user.vj_name = a.vj_name AND a.comp_id = b.id AND b.start_date > ? AND b.kind < 2 
 			ORDER BY user.name, a.rank DESC`
 	res := make([]Result, 0)
 	DB.Raw(sql, time).Find(&res)
-	fmt.Println(res)
 	return res, nil
 }
 
@@ -51,6 +49,5 @@ func GetGroupCompetitions() ([]Result, error) {
 		"ORDER BY temp.stu_id, temp.goal DESC"
 	res := make([]Result, 0)
 	DB.Raw(sql, ti).Find(&res)
-	fmt.Println(res)
 	return res, nil
 }

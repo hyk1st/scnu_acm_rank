@@ -39,13 +39,20 @@ func CompetitionPerson(ctx context.Context, c *app.RequestContext) {
 	sort.Slice(slice, func(a, b int) bool {
 		return cnt[slice[a]] > cnt[slice[b]]
 	})
-
+	resList := make([]map[string]interface{}, 0, len(slice))
+	for i, v := range slice {
+		resList = append(resList, map[string]interface{}{
+			"rank":  i + 1,
+			"name":  mp[v][0].Name,
+			"score": cnt[v],
+		})
+	}
 	c.JSON(http.StatusOK, utils.H{
-		"message": "success",
+		"status": 0,
+		"msg":    "success",
 		"data": map[string]interface{}{
-			"rank":     slice,
-			"scoreSum": cnt,
-			"detail":   mp,
+			"rank":   resList,
+			"detail": mp,
 		},
 	})
 }

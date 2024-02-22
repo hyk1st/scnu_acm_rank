@@ -12,8 +12,8 @@ type RegisterReq struct {
 	StuId      int64  `form:"stu_id,required"`
 	Name       string `form:"name,required"`
 	Sex        int    `form:"sex,required"`
-	GroupId    int    `form:"group_id,required"`
-	Grade      string `form:"grade,required"`
+	GroupId    int    `form:"group_id"`
+	Grade      string `form:"grade"`
 	Code       string `form:"code,required"`
 	Status     int    `form:"status"`
 	Connection string `form:"connection"`
@@ -32,6 +32,7 @@ func (r *RegisterReq) ToDbModle() *model.User {
 		GroupId:    r.GroupId,
 		Grade:      r.Grade,
 		Connection: r.Connection,
+		Level:      0,
 		Ext:        r.Ext,
 	}
 }

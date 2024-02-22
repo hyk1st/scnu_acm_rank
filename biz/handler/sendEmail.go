@@ -15,16 +15,26 @@ func SendEmail(ctx context.Context, c *app.RequestContext) {
 	err := c.BindForm(&req)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusOK, err)
+		c.JSON(http.StatusOK, utils.H{
+			"msg":    "fail",
+			"status": 1,
+			"data":   "",
+		})
 		return
 	}
 	err = middle.SendEmail([]string{req.Email})
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusOK, err)
+		c.JSON(http.StatusOK, utils.H{
+			"msg":    "fail",
+			"status": 1,
+			"data":   "",
+		})
 		return
 	}
 	c.JSON(http.StatusOK, utils.H{
-		"message": "success",
+		"msg":    "success",
+		"status": 0,
+		"data":   "",
 	})
 }

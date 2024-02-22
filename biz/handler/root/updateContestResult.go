@@ -34,7 +34,7 @@ func UpdateContestResult(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	comp := model.Competiton{}
+	comp := model.Competition{}
 	model.DB.Model(&comp).Where("id = ?", comp.Id).Find(&comp)
 	err = model.DB.Transaction(func(tx *gorm.DB) error {
 		tx.Save(comp)

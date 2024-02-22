@@ -21,7 +21,7 @@ import (
 var identityKey = "token"
 
 func GetJWT() (*jwt.HertzJWTMiddleware, error) {
-	return jwt.New(&jwt.HertzJWTMiddleware{
+	temp, err := jwt.New(&jwt.HertzJWTMiddleware{
 		Key:         []byte("hyk1st"),
 		Timeout:     time.Hour * 24 * 7,
 		MaxRefresh:  time.Hour,
@@ -61,22 +61,45 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 				VjName: mp["vj_name"].(string),
 				StuId:  int64(mp["stu_id"].(float64)),
 				Name:   mp["name"].(string),
+				Level:  mp["level"].(int),
 			})
 			return true
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
 			c.JSON(code, map[string]interface{}{
-				"code":    code,
-				"message": message,
-			})
-		},
-		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
-			c.JSON(http.StatusOK, utils.H{
-				"code":    code,
-				"token":   token,
-				"expire":  expire.Format(time.RFC3339),
-				"message": "success",
+				"status": 0,
+				"data":   "",
+				"msg":    "success",
 			})
 		},
 	})
+
+	temp.LoginResponse = func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
+		tk, err := temp.ParseTokenString(token)
+		if err != nil {
+			c.JSON(http.StatusOK, utils.H{
+				"status": 0,
+				"data": map[string]interface{}{
+					"token":  token,
+					"expire": expire.Format(time.RFC3339),
+				},
+				"msg": "登录成功",
+			})
+			return
+		}
+		mp := jwt.ExtractClaimsFromToken(tk)
+		mp = mp["token"].(map[string]interface{})
+		delete(mp, "password")
+		c.JSON(http.StatusOK, utils.H{
+			"status": 0,
+			"data": map[string]interface{}{
+				"token":  token,
+				"expire": expire.Format(time.RFC3339),
+				"user":   mp,
+			},
+			"msg": "登录成功",
+		})
+	}
+
+	return temp, err
 }

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"net/http"
@@ -15,14 +14,19 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	user := reqModel.RegisterReq{}
 	err := c.BindForm(&user)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusOK, err)
+		//fmt.Println(err)
+		c.JSON(http.StatusOK, utils.H{
+			"status": 1,
+			"msg":    "数据格式不正确",
+			"data":   "",
+		})
 		return
 	}
 	if middle.GetCode(user.Email) != user.Code {
 		c.JSON(http.StatusOK, utils.H{
-			"message": "fail",
-			"error":   "code error",
+			"status": 1,
+			"msg":    "验证码错误",
+			"data":   "",
 		})
 		return
 	}
@@ -38,15 +42,18 @@ func Register(ctx context.Context, c *app.RequestContext) {
 
 	if len(errStr) > 0 {
 		c.JSON(http.StatusOK, utils.H{
-			"result": "false",
-			"error":  errStr,
+			"status": 1,
+			"msg":    errStr[0],
+			"data":   "",
 		})
 	}
 	// 模型转换
 	userModel := user.ToDbModle()
 	model.DB.Create(userModel)
 	c.JSON(200, utils.H{
-		"result": "success",
+		"status": 0,
+		"msg":    "注册成功",
+		"data":   "",
 	})
 
 }
