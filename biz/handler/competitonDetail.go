@@ -24,7 +24,7 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 	model.DB.Model(&model.Competition{}).Where("id = ?", req.ContestId).First(&comp)
 	if true {
 		var crawler remote.CrawlTrainRes = remote.VJCrawler
-		res, str, err := crawler.GetTrainRes(comp.VjCpId)
+		str, err := crawler.GetTrainRes(comp.CpId)
 		if err != nil {
 			c.JSON(http.StatusOK, utils.H{
 				"message": "fail",
@@ -32,7 +32,7 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 			})
 			return
 		}
-		analysisRes, err = crawler.AnalysisRes(res)
+		analysisRes, _, err = crawler.AnalysisRes(str)
 		if err != nil {
 			c.JSON(http.StatusOK, utils.H{
 				"message": "fail",
@@ -79,14 +79,14 @@ func CompetitionDetail(ctx context.Context, c *app.RequestContext) {
 		}
 	}
 	resp := respModel.ContestDetailResp{
-		Name:      comp.Name,
-		VjCpId:    comp.VjCpId,
-		Kind:      comp.Kind,
-		Password:  comp.Password,
+		Name: comp.Name,
+		//VjCpId:    comp.VjCpId,
+		Kind: comp.Kind,
+		//Password:  comp.Password,
 		StartDate: comp.StartDate,
 		Length:    comp.Length,
-		CreateUsr: comp.CreateUsr,
-		Result:    *analysisRes,
+		//CreateUsr: comp.CreateUsr,
+		Result: *analysisRes,
 	}
 	c.JSON(http.StatusOK, utils.H{
 		"message": "success",

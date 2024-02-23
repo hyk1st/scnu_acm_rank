@@ -4,6 +4,7 @@ type User struct {
 	Id         int    `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
 	Email      string `gorm:"column:email;type:varchar(255);NOT NULL" json:"email"`
 	Password   string `gorm:"column:password;type:varchar(255);NOT NULL" json:"password"`
+	NcName     string `gorm:"column:nc_name;type:varchar(255);NOT NULL" json:"nc_name"`
 	VjName     string `gorm:"column:vj_name;type:varchar(50);NOT NULL" json:"vj_name"`
 	CfId       string `gorm:"column:cf_id;type:varchar(50);NOT NULL" json:"cf_id"`
 	StuId      int64  `gorm:"column:stu_id;type:bigint(20);NOT NULL" json:"stu_id"`

@@ -5,6 +5,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"net/http"
+	"scnu_acm_rank/biz/middle"
 	"scnu_acm_rank/biz/model"
 	"sort"
 )
@@ -13,10 +14,7 @@ func CompetitionPerson(ctx context.Context, c *app.RequestContext) {
 
 	res, err := model.GetUserCompetitions()
 	if err != nil {
-		c.JSON(http.StatusOK, utils.H{
-			"message": "fail",
-			"error":   err,
-		})
+		c.JSON(http.StatusOK, middle.FailResp(err))
 		return
 	}
 	mp := make(map[int64][]model.Result, 0)

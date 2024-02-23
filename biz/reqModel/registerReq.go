@@ -8,6 +8,7 @@ type RegisterReq struct {
 	Email      string `form:"email" vd:"email($)"`
 	Password   string `form:"password,required"`
 	VjName     string `form:"vj_name,required"`
+	NcName     string `form:"nc_name,required"`
 	CfId       string `form:"cf_id,required"`
 	StuId      int64  `form:"stu_id,required"`
 	Name       string `form:"name,required"`
@@ -25,6 +26,7 @@ func (r *RegisterReq) ToDbModle() *model.User {
 		Email:      r.Email,
 		Password:   r.Password,
 		VjName:     r.VjName,
+		NcName:     r.NcName,
 		CfId:       r.CfId,
 		StuId:      r.StuId,
 		Name:       r.Name,

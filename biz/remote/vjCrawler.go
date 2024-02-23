@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"runtime"
 	"scnu_acm_rank/biz/config"
+	"scnu_acm_rank/biz/model"
 	"sort"
 	"strings"
 )
@@ -24,7 +25,7 @@ type VjRespJson struct {
 	ID           int                  `json:"id"`
 	Title        string               `json:"title"`
 	Begin        int64                `json:"begin"`
-	Length       int                  `json:"length"`
+	Length       int64                `json:"length"`
 	IsReplay     bool                 `json:"isReplay"`
 	Participants map[string][3]string `json:"participants"`
 	Submissions  [][4]int64           `json:"submissions"`
@@ -130,38 +131,43 @@ func (vj *VjCrawler) Login() bool {
 	return true
 }
 
-func (vj *VjCrawler) GetTrainRes(contest string) (*VjRespJson, string, error) {
+func (vj *VjCrawler) GetTrainRes(contest string) (string, error) {
 	f, err := vj.checkLoginStatus()
 	if !f || err != nil {
 		if !vj.Login() {
-			return nil, "", errors.New("login fail")
+			return "", errors.New("login fail")
 		}
 	}
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", "https://vjudge.net/contest/rank/single/"+contest, nil)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 	req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
 	req.Header.Set("cookie", vj.cookie)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 	bodyText, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 	temp := VjRespJson{}
 	err = json.Unmarshal(bodyText, &temp)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
-	return &temp, string(bodyText), nil
+	return string(bodyText), nil
 }
 
-func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {
-	res := v.(*VjRespJson)
+func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, *model.Competition, error) {
+	resJson := v.(string)
+	res := VjRespJson{}
+	err := json.Unmarshal([]byte(resJson), &res)
+	if err != nil {
+		return nil, nil, err
+	}
 	mp2name := make(map[string]*PersonalRes, len(res.Participants))
 	for k, _ := range res.Participants {
 		mp2name[k] = &PersonalRes{
@@ -200,5 +206,11 @@ func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, error) {
 		sli[i].Rank = int64(i + 1)
 	}
 	r := &AnalysisRes{Result: sli}
-	return r, nil
+	return r, &model.Competition{
+		Name:      "",
+		CpId:      string(res.ID),
+		Kind:      0,
+		StartDate: res.Begin,
+		Length:    res.Length,
+	}, nil
 }

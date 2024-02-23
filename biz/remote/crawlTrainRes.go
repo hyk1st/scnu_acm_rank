@@ -1,6 +1,8 @@
 package remote
 
+import "scnu_acm_rank/biz/model"
+
 type CrawlTrainRes interface {
-	GetTrainRes(id string) (*VjRespJson, string, error)
-	AnalysisRes(interface{}) (*AnalysisRes, error)
+	GetTrainRes(id string) (string, error)
+	AnalysisRes(interface{}) (*AnalysisRes, *model.Competition, error)
 }
