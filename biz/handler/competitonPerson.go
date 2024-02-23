@@ -23,10 +23,10 @@ func CompetitionPerson(ctx context.Context, c *app.RequestContext) {
 		if mp[row.StuId] == nil || len(mp[row.StuId]) == 0 {
 			mp[row.StuId] = make([]model.Result, 0)
 		}
-		if len(mp[row.StuId]) > 10 {
+		if len(mp[row.StuId]) >= 3 {
 			continue
 		}
-		cnt[row.StuId]++
+		cnt[row.StuId] += int64(row.Score)
 		temp := row
 		mp[row.StuId] = append(mp[row.StuId], temp)
 	}
@@ -40,17 +40,17 @@ func CompetitionPerson(ctx context.Context, c *app.RequestContext) {
 	resList := make([]map[string]interface{}, 0, len(slice))
 	for i, v := range slice {
 		resList = append(resList, map[string]interface{}{
-			"rank":  i + 1,
-			"name":  mp[v][0].Name,
-			"score": cnt[v],
+			"rank":   i + 1,
+			"name":   mp[v][0].Name,
+			"stu_id": v,
+			"score":  cnt[v],
 		})
 	}
 	c.JSON(http.StatusOK, utils.H{
 		"status": 0,
 		"msg":    "success",
 		"data": map[string]interface{}{
-			"rank":   resList,
-			"detail": mp,
+			"rank": resList,
 		},
 	})
 }

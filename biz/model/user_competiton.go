@@ -10,7 +10,7 @@ type UserCompetition struct {
 	CompId  int    `gorm:"column:comp_id;type:int(11);NOT NULL" json:"comp_id"`
 	Solve   int    `gorm:"column:solve;type:int(11);NOT NULL" json:"solve"`
 	Rank    uint   `gorm:"column:rank;type:tinyint(4) unsigned;NOT NULL" json:"rank"`
-	Score   int    `gorm:"column:score;type:tinyint(4)" json:"score"`
+	Score   int    `gorm:"column:score;type:int(11)" json:"score"`
 	Ext     string `gorm:"column:ext;type:text" json:"ext"`
 	Penalty int    `gorm:"column:penalty;type:int(11);NOT NULL" json:"penalty"`
 }
@@ -27,19 +27,19 @@ type Result struct {
 	CompName  string `gorm:"column:comp_name;type:varchar(255);NOT NULL" json:"comp_name"`
 	Penalty   int    `gorm:"column:penalty;type:int(11)" json:"penalty"`
 	Rank      int    `gorm:"column:rank;type:int(11);NOT NULL" json:"rank"`
-	Score     int    `gorm:"column:score;type:tinyint(4)" json:"score"`
+	Score     int    `gorm:"column:score;type:int(11)" json:"score"`
 	Solve     int    `gorm:"column:solve;type:int(11);NOT NULL" json:"solve"`
 	StartDate int64  `gorm:"column:start_date;type:bigint(20);NOT NULL" json:"start_date"`
 }
 
 func GetUserCompetitions() ([]Result, error) {
 	time := time.Now().Add(-time.Hour * 24 * 700).UnixMilli()
-	sql := `SELECT user.name, user.stu_id, user.vj_name, a.comp_id, b.name comp_name, a.rank, a.penalty, a.solve, b.start_date 
+	sql := `SELECT user.name, user.stu_id, user.vj_name, a.comp_id, b.name comp_name, a.rank, a.penalty, a.score, a.solve, b.start_date 
 			FROM user, user_competition a, competition b
 			WHERE (user.vj_name = a.vj_name AND a.comp_id = b.id AND b.start_date > ? AND b.kind = 0) OR (user.nc_name = a.vj_name AND a.comp_id = b.id AND b.start_date > ? AND b.kind = 1)
-			ORDER BY user.name, a.rank DESC`
+			ORDER BY user.name, a.score DESC`
 	res := make([]Result, 0)
-	DB.Raw(sql, time).Find(&res)
+	DB.Raw(sql, time, time).Find(&res)
 	return res, nil
 }
 

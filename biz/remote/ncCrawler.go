@@ -157,12 +157,13 @@ func (nc *ncCrawler) AnalysisRes(v interface{}) (*AnalysisRes, *model.Competitio
 		proId2Name[v.ProblemID] = int(v.Name[0] - 'A')
 	}
 	sli := make([]*PersonalRes, 0, len(res.Data.RankData))
-
-	for i, v := range res.Data.RankData {
+	var rk int64 = 1
+	for _, v := range res.Data.RankData {
 		temp := new(PersonalRes)
 		temp.Penalty = v.PenaltyTime
 		temp.SolveCnt = v.AcceptedCount
-		temp.Rank = int64(i)
+		temp.Rank = rk
+		rk++
 		temp.Name = v.UserName
 		temp.Submissions = make(map[int64]*Submission, 0)
 		for _, sub := range v.ScoreList {
@@ -183,11 +184,12 @@ func (nc *ncCrawler) AnalysisRes(v interface{}) (*AnalysisRes, *model.Competitio
 		if err != nil {
 			return nil, nil, err
 		}
-		for i, v := range res.Data.RankData {
+		for _, v := range res.Data.RankData {
 			temp := new(PersonalRes)
 			temp.Penalty = v.PenaltyTime
 			temp.SolveCnt = v.AcceptedCount
-			temp.Rank = int64(i)
+			temp.Rank = rk
+			rk++
 			temp.Name = v.UserName
 			temp.Submissions = make(map[int64]*Submission, 0)
 			for _, sub := range v.ScoreList {
