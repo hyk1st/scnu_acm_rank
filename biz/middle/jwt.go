@@ -2,6 +2,7 @@ package middle
 
 import (
 	"context"
+	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/hertz-contrib/jwt"
@@ -57,20 +58,16 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
 			mp := data.(map[string]interface{})
 			c.Set("user", &model.User{
-				Email:  mp["email"].(string),
-				VjName: mp["vj_name"].(string),
-				StuId:  int64(mp["stu_id"].(float64)),
-				Name:   mp["name"].(string),
-				Level:  mp["level"].(int),
+				//Email:  mp["email"].(string),
+				//VjName: mp["vj_name"].(string),
+				StuId: int64(mp["stu_id"].(float64)),
+				//Name:   mp["name"].(string),
+				Level: int(mp["level"].(float64)),
 			})
 			return true
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
-			c.JSON(code, map[string]interface{}{
-				"status": 0,
-				"data":   "",
-				"msg":    "success",
-			})
+			c.JSON(code, FailResp(errors.New("未登录")))
 		},
 	})
 
@@ -80,7 +77,7 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 			c.JSON(http.StatusOK, utils.H{
 				"status": 0,
 				"data": map[string]interface{}{
-					"token":  token,
+					"token":  "Bearer " + token,
 					"expire": expire.Format(time.RFC3339),
 				},
 				"msg": "登录成功",
@@ -93,7 +90,7 @@ func GetJWT() (*jwt.HertzJWTMiddleware, error) {
 		c.JSON(http.StatusOK, utils.H{
 			"status": 0,
 			"data": map[string]interface{}{
-				"token":  token,
+				"token":  "Bearer " + token,
 				"expire": expire.Format(time.RFC3339),
 				"user":   mp,
 			},

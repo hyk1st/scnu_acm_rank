@@ -46,6 +46,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 			"msg":    errStr[0],
 			"data":   "",
 		})
+		return
 	}
 	// 模型转换
 	userModel := user.ToDbModle()

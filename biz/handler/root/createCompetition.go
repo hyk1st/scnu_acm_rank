@@ -41,6 +41,7 @@ func CreateCompetition(ctx context.Context, c *app.RequestContext) {
 		c.JSON(http.StatusOK, middle.FailResp(err))
 		return
 	}
+	m.CpId = req.CpId
 	m.Result = resJson
 	m.Name = req.Name
 	m.BestSolve = res.Result[0].SolveCnt

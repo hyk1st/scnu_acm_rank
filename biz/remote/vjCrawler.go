@@ -12,6 +12,7 @@ import (
 	"scnu_acm_rank/biz/config"
 	"scnu_acm_rank/biz/model"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -175,21 +176,33 @@ func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, *model.Competitio
 			Submissions: make(map[int64]*Submission),
 		}
 	}
+
+	sort.Slice(res.Submissions, func(a, b int) bool {
+		return res.Submissions[a][3] < res.Submissions[b][3]
+	})
+
 	for _, v := range res.Submissions {
 		ts := fmt.Sprintf("%v", v[0])
+		if v[3] > res.Length/1000 {
+			break
+		}
 		sub := mp2name[ts].Submissions[v[1]]
 		if sub == nil {
-			sub = &Submission{}
+			sub = &Submission{
+				AcceptTime: -1,
+			}
 			mp2name[ts].Submissions[v[1]] = sub
+		}
+		if sub.AcceptTime != -1 {
+			continue
 		}
 		if v[2] == 1 {
 			//mp.AcceptTime = v[3]
 			sub.AcceptTime = v[3]
 			mp2name[ts].SolveCnt++
-			mp2name[ts].Penalty += int(v[3])
+			mp2name[ts].Penalty += int(v[3]) + sub.SubCnt*20*60
 		} else {
 			sub.SubCnt++
-			mp2name[ts].Penalty += 20 * 60
 		}
 	}
 	sli := make([]*PersonalRes, 0, len(mp2name))
@@ -204,11 +217,12 @@ func (vj *VjCrawler) AnalysisRes(v interface{}) (*AnalysisRes, *model.Competitio
 	})
 	for i, _ := range sli {
 		sli[i].Rank = int64(i + 1)
+		sli[i].Penalty *= 1000
 	}
 	r := &AnalysisRes{Result: sli}
 	return r, &model.Competition{
-		Name:      "",
-		CpId:      string(res.ID),
+		Name:      res.Title,
+		CpId:      strconv.Itoa(res.ID),
 		Kind:      0,
 		StartDate: res.Begin,
 		Length:    res.Length,
