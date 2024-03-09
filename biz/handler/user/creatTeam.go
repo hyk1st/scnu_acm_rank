@@ -40,13 +40,14 @@ func CreateTeam(ctx context.Context, c *app.RequestContext) {
 	team.Status = 1
 	err = model.DB.Transaction(func(tx *gorm.DB) error {
 		tx.Save(&team).Find(&team)
-		tx.Model(&user).Where("stu_id = ?", user.StuId).Update("group_id", team.Id)
+		tx.Model(&user).Where("stu_id = ?", user.StuId).Update("group_id", team.Id).Find(&user)
 		return tx.Error
 	})
 	if err != nil {
 		c.JSON(http.StatusOK, middle.FailResp(err))
 		return
 	}
+	go middle.SendKeyEmail([]string{user.Email}, req.Key)
 	c.JSON(http.StatusOK, middle.SuccessResp("创建成功", map[string]interface{}{
 		"group_id": team.Id,
 	}))

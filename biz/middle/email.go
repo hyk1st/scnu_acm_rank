@@ -39,7 +39,22 @@ func SendEmail(to []string) error {
 		code += fmt.Sprintf("%v", time.Now().UnixNano()%10)
 	}
 	e.Subject = E.subject
-	e.Text = []byte("欢迎注册hyk online judge，您的验证码是： ")
+	e.Text = []byte("欢迎注册scnu_acm_rank，您的验证码是： ")
+	e.HTML = []byte("<h1>" + code + "</h1>")
+	err := e.SendWithTLS("smtp.qq.com:465", smtp.PlainAuth("", E.from, E.password, "smtp.qq.com"), &tls.Config{InsecureSkipVerify: true, ServerName: "smtp.qq.com"})
+	if err != nil {
+		return err
+	}
+	AddCode(to[0], code)
+	return nil
+}
+
+func SendKeyEmail(to []string, code string) error {
+	e := email.NewEmail()
+	e.From = E.from
+	e.To = to
+	e.Subject = E.subject
+	e.Text = []byte("您所创建队伍的口令为：")
 	e.HTML = []byte("<h1>" + code + "</h1>")
 	err := e.SendWithTLS("smtp.qq.com:465", smtp.PlainAuth("", E.from, E.password, "smtp.qq.com"), &tls.Config{InsecureSkipVerify: true, ServerName: "smtp.qq.com"})
 	if err != nil {
