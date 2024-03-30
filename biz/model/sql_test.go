@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"github.com/henrylee2cn/ameda"
+	"github.com/andeya/ameda"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"testing"

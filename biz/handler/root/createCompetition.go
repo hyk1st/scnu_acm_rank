@@ -30,11 +30,15 @@ func CreateCompetition(ctx context.Context, c *app.RequestContext) {
 	case 1:
 		crawler = remote.NcCrawler
 	}
-
-	resJson, err := crawler.GetTrainRes(req.CpId)
-	if err != nil {
-		c.JSON(http.StatusOK, middle.FailResp(err))
-		return
+	var resJson string
+	if len(req.Json) > 0 {
+		resJson = req.Json
+	} else {
+		resJson, err = crawler.GetTrainRes(req.CpId)
+		if err != nil {
+			c.JSON(http.StatusOK, middle.FailResp(err))
+			return
+		}
 	}
 	res, m, err := crawler.AnalysisRes(resJson)
 	if err != nil {

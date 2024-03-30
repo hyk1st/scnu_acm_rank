@@ -7,7 +7,7 @@ type CreateContestReq struct {
 	//StartDate int64  `form:"start_date,required" json:"start_date"`
 	//Length    int64  `form:"length"`
 	//Result    string `form:"result"`
-	//Json string `form:"json"`
+	Json string `form:"json"`
 	//Ext  string `form:"ext" json:"ext"`
 }
 
